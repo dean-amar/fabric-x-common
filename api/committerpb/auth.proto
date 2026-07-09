@@ -1,0 +1,47 @@
+/*
+Copyright IBM Corp. All Rights Reserved.
+
+SPDX-License-Identifier: Apache-2.0
+*/
+
+syntax = "proto3";
+
+option go_package = "github.com/hyperledger/fabric-x-common/api/committerpb";
+
+package servicepb;
+
+import "common/common.proto";
+
+// AuthService provides MSP-based authentication for fabric-x-committer services.
+// Clients must call Authorize once per connection to bind their MSP identity
+// to the connection. Subsequent RPCs on the same connection will use the
+// bound identity for ACL enforcement.
+service AuthService {
+    // Authorize validates a signed envelope and binds the MSP identity to
+    // the current connection. This must be called once before any other
+    // protected RPCs can be invoked.
+    rpc Authorize(AuthorizeRequest) returns (AuthorizeResponse);
+}
+
+// AuthorizeRequest contains a signed envelope with the client's MSP identity.
+message AuthorizeRequest {
+    // signed_envelope contains the client's MSP identity and signature.
+    // The envelope payload should contain the client's serialized identity
+    // in the SignatureHeader.Creator field.
+    common.Envelope signed_envelope = 1;
+}
+
+// AuthorizeResponse indicates whether authorization succeeded.
+message AuthorizeResponse {
+    // success indicates whether the authorization was successful.
+    bool success = 1;
+    
+    // message provides additional information about the authorization result.
+    string message = 2;
+    
+    // msp_id is the MSP identifier of the authenticated identity.
+    string msp_id = 3;
+    
+    // config_sequence is the channel configuration sequence at authentication time.
+    uint64 config_sequence = 4;
+}
