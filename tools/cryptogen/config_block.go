@@ -51,6 +51,10 @@ type Node struct {
 	CommonName string
 	Hostname   string
 	SANS       []string
+	// SignVerifyKey also generates a standalone EC signing key for this node, in its own sign-verify
+	// directory beside msp/ and tls/. It is for a node that signs something outside the X.509 hierarchy -
+	// the auth service's tokens - so no CA issues or validates it.
+	SignVerifyKey bool
 	// Fabric-X supports multiple parties per organizations.
 	// Thus, in such case, we can create multiple Orderer's nodes
 	// for each organization.
@@ -225,6 +229,7 @@ func createOrgSpec(o *OrganizationParameters) OrgSpec {
 			Hostname:           n.Hostname,
 			SANS:               n.SANS,
 			Party:              n.PartyName,
+			SignVerifyKey:      n.SignVerifyKey,
 			OrganizationalUnit: PeerOU,
 		})
 	}

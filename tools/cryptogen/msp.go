@@ -31,6 +31,7 @@ type mspTree struct {
 	AdminCerts string
 	SignCerts  string
 	KnownCerts string
+	SignVerify string
 }
 
 // nodeParameters are used as parameters for the generating methods.
@@ -42,6 +43,8 @@ type nodeParameters struct {
 	OU        string
 	EnableOUs bool
 	KeyAlg    string
+	// SignVerifyKey requests a standalone EC signing key for the node, beside its msp/ and tls/ material.
+	SignVerifyKey bool
 }
 
 // Directories.
@@ -85,6 +88,7 @@ func newMspTree(root string) *mspTree {
 		AdminCerts: path.Join(mspDir, AdminCertsDir),
 		SignCerts:  path.Join(mspDir, SignCertsDir),
 		KnownCerts: path.Join(mspDir, KnownCertsDir),
+		SignVerify: path.Join(root, SignVerifyDir),
 	}
 }
 
@@ -102,7 +106,13 @@ func (t *mspTree) generateLocalMSP(p nodeParameters) error {
 	if err != nil {
 		return err
 	}
-	return t.generateTLS(p)
+	if err = t.generateTLS(p); err != nil {
+		return err
+	}
+	if !p.SignVerifyKey {
+		return nil
+	}
+	return t.generateSignVerifyKey()
 }
 
 // generateVerifyingMSP generates a verifying MSP.
@@ -219,6 +229,22 @@ func (t *mspTree) generateTLS(p nodeParameters) error {
 		return errors.Wrap(err, "failed to rename TLS private key")
 	}
 	return nil
+}
+
+// generateSignVerifyKey writes the node's standalone signing key. Always ECDSA: its consumer signs ES256,
+// which is P-256 only, regardless of the algorithm the organization's CA uses.
+func (t *mspTree) generateSignVerifyKey() error {
+	if err := createAllFolders(t.SignVerify); err != nil {
+		return err
+	}
+	if _, err := generatePrivateKey(t.SignVerify, ECDSA); err != nil {
+		return errors.Wrap(err, "failed to generate sign-verify key")
+	}
+	// Renamed off the keystore name, as the TLS key is: this one is named by path in configuration rather
+	// than found by scanning a keystore.
+	return errors.Wrap(
+		os.Rename(path.Join(t.SignVerify, PrivateKeyFile), path.Join(t.SignVerify, SignVerifyKeyFile)),
+		"failed to rename sign-verify key")
 }
 
 func getPublicKey(priv crypto.PrivateKey) crypto.PublicKey {

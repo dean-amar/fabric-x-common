@@ -37,6 +37,12 @@ const (
 	PrivateKeyFile   = "priv" + PrivateKeySuffix
 	CertFileExt      = ".pem"
 	CertSuffix       = "-cert" + CertFileExt
+
+	// SignVerifyDir and SignVerifyKeyFile name a node's standalone signing key, generated beside its msp/
+	// and tls/ material when Node.SignVerifyKey is set. The name follows the TLS convention rather than the
+	// keystore's priv_sk: it is named by path in configuration, not found by scanning a keystore.
+	SignVerifyDir     = "sign-verify"
+	SignVerifyKeyFile = "sk.key"
 )
 
 // generatePrivateKey creates an ecdsa private key using a P-256 curve or an ed25519 key

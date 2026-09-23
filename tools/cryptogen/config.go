@@ -42,6 +42,7 @@ type NodeSpec struct {
 	SANS               []string `yaml:"SANS"`
 	PublicKeyAlgorithm string   `yaml:"PublicKeyAlgorithm"`
 	Party              string   `yaml:"Party"`
+	SignVerifyKey      bool     `yaml:"SignVerifyKey"`
 }
 
 // NodeTemplate represents a template to generate node(s).
