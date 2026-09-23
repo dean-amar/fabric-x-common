@@ -352,6 +352,7 @@ func (c *orgCryptoTree) generateNodes(nodes []NodeSpec, p nodeParameters) error 
 		curParams.Name = node.CommonName
 		curParams.TLSSans = node.SANS
 		curParams.KeyAlg = node.PublicKeyAlgorithm
+		curParams.SignVerifyKey = node.SignVerifyKey
 		err := tree.generateLocalMSP(curParams)
 		if err != nil {
 			return err

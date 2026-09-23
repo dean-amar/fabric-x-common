@@ -85,10 +85,10 @@ func CreateOrExtendConfigBlockWithCrypto(targetPath string, conf *ConfigBlock) (
 				newPeer("vc"),
 				newPeer("coordinator"),
 				newPeer("query"),
-				newPeer("auth"),
 				newPeer("sidecar"),
 				newPeer("loadgen"),
 				newPeer("db"),
+				authPeer(),
 			},
 		})
 	}
@@ -116,4 +116,13 @@ func newPeer(name string) cryptogen.Node {
 		Hostname:   name,
 		SANS:       []string{"localhost", "127.0.0.1"},
 	}
+}
+
+// authPeer is the peer the AuthService runs as. It also gets a standalone signing key, because the service
+// signs tokens with it: every instance of the organization must load that same key, so it cannot be
+// generated per process.
+func authPeer() cryptogen.Node {
+	node := newPeer("auth")
+	node.SignVerifyKey = true
+	return node
 }
