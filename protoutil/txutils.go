@@ -146,7 +146,7 @@ func CreateSignedEnvelopeWithTLSBinding( //nolint:revive // argument-limit; max 
 		}
 	}
 
-	return createSignedEnvelopeWithTLSBinding(
+	return CreateSignedEnvelopeWithSignatureHeader(
 		txType, channelID, signer, dataMsg, msgVersion, epoch, tlsCertHash, payloadSignatureHeader)
 }
 
@@ -170,14 +170,14 @@ func CreateSignedEnvelopeWithTLSBindingWithIDOfCert( //nolint:revive // argument
 		}
 	}
 
-	return createSignedEnvelopeWithTLSBinding(
+	return CreateSignedEnvelopeWithSignatureHeader(
 		txType, channelID, signer, dataMsg, msgVersion, epoch, tlsCertHash, payloadSignatureHeader)
 }
 
-// createSignedEnvelopeWithTLSBinding creates a signed envelope of the desired
-// type, with marshaled dataMsg and signs it. It also includes a TLS cert hash
-// into the channel header.
-func createSignedEnvelopeWithTLSBinding( //nolint:revive // argument-limit; max 4 but got 8
+// CreateSignedEnvelopeWithSignatureHeader creates a signed envelope of the desired
+// type, with marshaled dataMsg, a TLS cert hash in the channel header, and the given
+// signature header. It lets a caller choose the header's nonce, e.g., a server-issued challenge.
+func CreateSignedEnvelopeWithSignatureHeader( //nolint:revive // argument-limit; max 4 but got 8
 	txType common.HeaderType,
 	channelID string,
 	signer identity.SignerSerializer,
